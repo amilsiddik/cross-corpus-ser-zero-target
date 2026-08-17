@@ -1,9 +1,0 @@
-component,procedure,target_used_for_fitting_or_selection
-LODO train split,source train + source test only,No
-LODO validation split,source validation only,No
-LODO target test split,all target splits used only for final evaluation,"No, except final metric computation"
-Sequence feature scaling,StandardScaler fit only on valid source-training frames; validation and target are transform-only,No
-Class weighting,computed from source-training labels only,No
-Early stopping,selected by source-validation Macro-F1,No
-Checkpoint selection,best epoch selected by source-validation Macro-F1 for each seed,No
-Target labels,used only after prediction for final metric calculation,Evaluation only
