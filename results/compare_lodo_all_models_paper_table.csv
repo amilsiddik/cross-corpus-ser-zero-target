@@ -1,0 +1,16 @@
+Model,Held-out Test Dataset,Accuracy,UAR,Macro-F1,Weighted-F1
+Handcrafted SVM-RBF,EMODB,27.30 ± 0.00,25.84 ± 0.00,19.74 ± 0.00,20.60 ± 0.00
+Handcrafted SVM-RBF,RAVDESS,22.16 ± 0.00,20.31 ± 0.00,14.16 ± 0.00,15.44 ± 0.00
+Handcrafted SVM-RBF,RESD,23.46 ± 0.00,24.60 ± 0.00,22.59 ± 0.00,22.32 ± 0.00
+Handcrafted MLP,EMODB,28.51 ± 0.85,27.02 ± 1.13,19.80 ± 1.43,20.31 ± 1.59
+Handcrafted MLP,RAVDESS,25.95 ± 2.55,23.78 ± 2.34,16.27 ± 3.11,17.75 ± 3.39
+Handcrafted MLP,RESD,23.76 ± 0.05,24.61 ± 0.34,22.77 ± 0.71,22.75 ± 0.84
+emotion2vec MLP,EMODB,83.98 ± 0.50,83.81 ± 0.52,83.52 ± 0.52,83.63 ± 0.55
+emotion2vec MLP,RAVDESS,94.73 ± 0.39,94.99 ± 0.28,94.52 ± 0.42,94.76 ± 0.38
+emotion2vec MLP,RESD,59.38 ± 0.27,58.43 ± 0.41,59.31 ± 0.34,59.63 ± 0.26
+Concat Fusion MLP,EMODB,83.19 ± 0.98,83.07 ± 1.07,82.60 ± 1.19,82.72 ± 1.12
+Concat Fusion MLP,RAVDESS,93.06 ± 1.71,92.13 ± 2.25,92.49 ± 1.89,93.04 ± 1.70
+Concat Fusion MLP,RESD,57.93 ± 0.90,57.43 ± 0.92,57.80 ± 0.91,58.26 ± 0.84
+Sequence-level Cross-Attention,EMODB,83.01 ± 1.00,82.79 ± 1.04,82.57 ± 1.15,82.64 ± 1.08
+Sequence-level Cross-Attention,RAVDESS,94.60 ± 0.57,94.91 ± 0.48,94.38 ± 0.56,94.62 ± 0.58
+Sequence-level Cross-Attention,RESD,58.71 ± 0.35,57.62 ± 0.53,58.22 ± 0.32,58.75 ± 0.34
