@@ -99,13 +99,13 @@ cross-corpus-ser-zero-target/
 ├── 12_directional_transfer_matrix_emotion2vec.ipynb
 ├── Check_all.ipynb
 ├── plot.ipynb
-├── manifest/
-│   ├── environment_manifest.json
-│   ├── sequence_environment_manifest.json
-│   ├── generated_feature_file_manifest_sha256.csv
-│   ├── generated_sequence_feature_file_manifest_sha256.csv
-│   ├── lodo_split_manifest.csv
-│   ├── lodo_sequence_split_manifest.csv
+├── manifests/
+│   ├── environment_manifests.json
+│   ├── sequence_environment_manifests.json
+│   ├── generated_feature_file_manifests_sha256.csv
+│   ├── generated_sequence_feature_file_manifests_sha256.csv
+│   ├── lodo_split_manifests.csv
+│   ├── lodo_sequence_split_manifests.csv
 │   ├── lodo_leakage_prevention_checklist.csv
 │   └── lodo_sequence_leakage_prevention_checklist.csv
 ├── results/
@@ -124,7 +124,7 @@ cross-corpus-ser-zero-target/
     └── figure3_perclass_lodo_f1_heatmap_plus_base.png
 ```
 
-> Note: The current repository folder is named `manifest/`. If this folder is renamed to `manifests/`, update the paths in the README and scripts accordingly.
+> Note: The current repository folder is named `manifests/`. If this folder is renamed to `manifests/`, update the paths in the README and scripts accordingly.
 
 ---
 
@@ -170,10 +170,10 @@ Run the main notebooks in the following order.
 | 1 | `02_feature_extraction_handcrafted_intra.ipynb` | Extract utterance-level handcrafted acoustic-prosodic features | handcrafted feature tables |
 | 2 | `03_train_handcrafted_intra.ipynb` | Train Handcrafted SVM-RBF intra-corpus baseline | intra-corpus SVM results |
 | 3 | `04_train_handcrafted_mlp_intra.ipynb` | Train Handcrafted MLP intra-corpus baseline | intra-corpus MLP results |
-| 4 | `05_extract_emotion2vec_intra.ipynb` | Extract utterance-level emotion2vec features | 768-dimensional emotion2vec embeddings and environment manifest |
+| 4 | `05_extract_emotion2vec_intra.ipynb` | Extract utterance-level emotion2vec features | 768-dimensional emotion2vec embeddings and environment manifests |
 | 5 | `06_train_emotion2vec_intra.ipynb` | Train emotion2vec MLP intra-corpus model | intra-corpus emotion2vec MLP results |
 | 6 | `07_train_concat_fusion_intra.ipynb` | Train utterance-level Concat Fusion MLP intra-corpus model | intra-corpus concat fusion results |
-| 7 | `08b_extract_sequence_features_intra.ipynb` | Extract sequence-level emotion2vec and handcrafted features | sequence feature manifest |
+| 7 | `08b_extract_sequence_features_intra.ipynb` | Extract sequence-level emotion2vec and handcrafted features | sequence feature manifests |
 | 8 | `09_train_sequence_cross_attention_intra.ipynb` | Train Sequence-level Cross-Attention intra-corpus model | intra-corpus sequence cross-attention results |
 | 9 | `10_train_lodo_utterance_fusion.ipynb` | Train LODO Handcrafted SVM-RBF, Handcrafted MLP, emotion2vec MLP, and Concat Fusion MLP | LODO utterance-level results and leakage checklist |
 | 10 | `11_train_lodo_sequence_cross_attention.ipynb` | Train LODO Sequence-level Cross-Attention model | LODO sequence cross-attention results and leakage checklist |
@@ -301,10 +301,10 @@ ModelScope version: 1.39.1
 Environment details and checkpoint verification are recorded in:
 
 ```text
-manifest/environment_manifest.json
-manifest/sequence_environment_manifest.json
-manifest/generated_feature_file_manifest_sha256.csv
-manifest/generated_sequence_feature_file_manifest_sha256.csv
+manifests/environment_manifests.json
+manifests/sequence_environment_manifests.json
+manifests/generated_feature_file_manifests_sha256.csv
+manifests/generated_sequence_feature_file_manifests_sha256.csv
 ```
 
 The public emotion2vec checkpoint is used as a **frozen feature extractor**. Its parameters are not updated during downstream classifier training.
@@ -606,18 +606,18 @@ The main figures generated for the manuscript are stored in `figures/`.
 
 ## 18. Leakage-prevention and reproducibility artifacts
 
-The repository includes split manifests and leakage-prevention checklists in `manifest/`.
+The repository includes split manifests and leakage-prevention checklists in `manifests/`.
 
 | File | Purpose |
 |---|---|
-| `manifest/lodo_split_manifest.csv` | train/validation/target-test manifest for LODO utterance-level experiments |
-| `manifest/lodo_sequence_split_manifest.csv` | train/validation/target-test manifest for LODO sequence-level experiments |
-| `manifest/lodo_leakage_prevention_checklist.csv` | leakage-prevention checklist for LODO utterance-level experiments |
-| `manifest/lodo_sequence_leakage_prevention_checklist.csv` | leakage-prevention checklist for LODO sequence-level experiments |
-| `manifest/generated_feature_file_manifest_sha256.csv` | SHA256 manifest for generated utterance-level emotion2vec feature files |
-| `manifest/generated_sequence_feature_file_manifest_sha256.csv` | SHA256 manifest for generated sequence-level feature files |
-| `manifest/environment_manifest.json` | environment and checkpoint manifest for utterance-level emotion2vec extraction |
-| `manifest/sequence_environment_manifest.json` | environment and checkpoint manifest for sequence-level feature extraction |
+| `manifests/lodo_split_manifests.csv` | train/validation/target-test manifests for LODO utterance-level experiments |
+| `manifests/lodo_sequence_split_manifests.csv` | train/validation/target-test manifests for LODO sequence-level experiments |
+| `manifests/lodo_leakage_prevention_checklist.csv` | leakage-prevention checklist for LODO utterance-level experiments |
+| `manifests/lodo_sequence_leakage_prevention_checklist.csv` | leakage-prevention checklist for LODO sequence-level experiments |
+| `manifests/generated_feature_file_manifests_sha256.csv` | SHA256 manifests for generated utterance-level emotion2vec feature files |
+| `manifests/generated_sequence_feature_file_manifests_sha256.csv` | SHA256 manifests for generated sequence-level feature files |
+| `manifests/environment_manifests.json` | environment and checkpoint manifests for utterance-level emotion2vec extraction |
+| `manifests/sequence_environment_manifests.json` | environment and checkpoint manifests for sequence-level feature extraction |
 
 The leakage-prevention checks are intended to document that target-corpus information is not used during source training or model selection. Feature caches are treated as per-utterance representations; no corpus-level normalization statistics, feature-selection criteria, class weights, validation scores, or target labels from the held-out corpus should be used during source training or model selection.
 
@@ -625,7 +625,7 @@ The leakage-prevention checks are intended to document that target-corpus inform
 
 ## 19. Installation
 
-The notebooks were run in Google Colab. Exact versions are recorded in `manifest/environment_manifest.json` and `manifest/sequence_environment_manifest.json`.
+The notebooks were run in Google Colab. Exact versions are recorded in `manifests/environment_manifests.json` and `manifests/sequence_environment_manifests.json`.
 
 A minimal installation example is:
 
@@ -718,7 +718,7 @@ This repository supports verification of the experimental pipeline and reported 
 - Precomputed feature caches are not redistributed.
 - Model checkpoints are not redistributed.
 - Full reproduction requires users to obtain the datasets from their original sources.
-- Results depend on the public `iic/emotion2vec_plus_base` checkpoint and the software environment recorded in the manifest files.
+- Results depend on the public `iic/emotion2vec_plus_base` checkpoint and the software environment recorded in the manifests files.
 - The reported standard deviations reflect random-seed variability under fixed splits, not uncertainty over alternative corpora, speakers, or utterances.
 
 ---
