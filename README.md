@@ -390,20 +390,26 @@ results_lodo_sequence_cross_attention/lodo_sequence_xattn_per_class_summary_mean
 
 ## 12. Main Experimental Findings
 
-The main findings are:
+The main findings should be interpreted descriptively under the present three-corpus zero-target protocol.
 
-1. **emotion2vec MLP is the strongest average LODO baseline.**
-   - Average LODO Macro-F1: **79.02%**
+1. **emotion2vec MLP achieved the highest average LODO Macro-F1 among the evaluated models.**
+   - Average LODO Macro-F1: **79.12%**
 
-2. **Naive concat fusion degrades cross-corpus performance.**
-   - Average LODO Macro-F1 decreases to **73.63%**
+2. **Handcrafted-only baselines showed substantially lower zero-target cross-corpus performance.**
+   - Handcrafted SVM-RBF average LODO Macro-F1: **18.83%**
+   - Handcrafted MLP average LODO Macro-F1: **19.61%**
 
-3. **Sequence-level cross-attention improves over concat fusion.**
-   - Average LODO Macro-F1 increases to **77.90%**
-   - It consistently outperforms concat fusion in all LODO folds.
+3. **Naive utterance-level concatenation did not improve over emotion2vec MLP.**
+   - emotion2vec MLP: **79.12%**
+   - Concat Fusion MLP: **77.63%**
 
-4. **RESD is the hardest held-out corpus.**
-   - This suggests that language shift combined with monologue-to-dialogue shift is more difficult than language shift between acted monologue corpora.
+4. **Sequence-level Cross-Attention slightly outperformed Concat Fusion MLP but did not surpass emotion2vec MLP.**
+   - Sequence-level Cross-Attention: **78.39%**
+   - Concat Fusion MLP: **77.63%**
+   - This comparison should be interpreted as a comparison of heterogeneous implemented model configurations, not as a controlled ablation of the attention mechanism.
+
+5. **RESD produced the lowest absolute LODO Macro-F1 among the three held-out corpora.**
+   - This result should be interpreted as a corpus-pair effect under jointly varying language, corpus construction, recording conditions, label procedures, emotion distribution, and speaking style, rather than as causal evidence that dialogue style alone is more difficult than language shift.
 
 ---
 
