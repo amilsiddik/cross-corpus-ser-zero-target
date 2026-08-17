@@ -1,0 +1,11 @@
+numpy
+pandas
+scikit-learn
+librosa
+torch
+matplotlib
+seaborn
+tqdm
+funasr==1.4.1
+modelscope==1.39.1
+openpyxl
