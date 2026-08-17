@@ -27,6 +27,9 @@ Output baru diberi suffix `plus_base` agar tidak menimpa folder lama.
 9. `09_train_sequence_cross_attention_intra.ipynb`
 10. `10_train_lodo_utterance_fusion.ipynb`
 11. `11_train_lodo_sequence_cross_attention.ipynb`
+12. `12_directional_transfer_matrix_emotion2vec.ipynb`
+13. `plot.ipynb`
+14. `Check_all.ipynb`
 
 `08_train_cross_attention_fusion_intra.ipynb` diperbaiki juga, tetapi model tersebut bukan prioritas utama jika manuscript hanya memakai Sequence-level Cross-Attention.
 
