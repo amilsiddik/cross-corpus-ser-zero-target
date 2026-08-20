@@ -1,0 +1,10 @@
+fold,test_dataset,source_datasets,role,n,n_angry,n_disgust,n_fear,n_happy,n_neutral,n_sad
+heldout_emodb,emodb,ravdess+resd,source_train,1892,348,310,351,343,240,300
+heldout_emodb,emodb,ravdess+resd,source_validation,362,63,67,64,67,47,54
+heldout_emodb,emodb,ravdess+resd,target_test,718,140,106,123,118,106,125
+heldout_ravdess,ravdess,emodb+resd,source_train,1659,315,245,301,289,256,253
+heldout_ravdess,ravdess,emodb+resd,source_validation,257,44,46,45,47,41,34
+heldout_ravdess,ravdess,emodb+resd,target_test,1056,192,192,192,192,96,192
+heldout_resd,resd,emodb+ravdess,source_train,1527,287,255,270,266,176,273
+heldout_resd,resd,emodb+ravdess,source_validation,247,45,43,45,44,26,44
+heldout_resd,resd,emodb+ravdess,target_test,1198,219,185,223,218,191,162
