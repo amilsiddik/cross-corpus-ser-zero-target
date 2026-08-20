@@ -1,7 +1,0 @@
-Model,Source Dataset,Target Dataset,Accuracy,UAR,Macro-F1,Weighted-F1
-emotion2vec MLP,EMODB,RAVDESS,94.57 ± 0.57,94.76 ± 0.79,94.24 ± 0.73,94.59 ± 0.57
-emotion2vec MLP,EMODB,RESD,58.99 ± 0.54,58.25 ± 0.23,58.89 ± 0.32,59.10 ± 0.52
-emotion2vec MLP,RAVDESS,EMODB,85.52 ± 0.14,85.25 ± 0.14,85.18 ± 0.14,85.44 ± 0.15
-emotion2vec MLP,RAVDESS,RESD,62.21 ± 0.92,61.66 ± 0.80,61.84 ± 0.88,62.39 ± 0.92
-emotion2vec MLP,RESD,EMODB,83.70 ± 0.37,83.47 ± 0.38,83.18 ± 0.38,83.23 ± 0.37
-emotion2vec MLP,RESD,RAVDESS,94.00 ± 0.45,94.27 ± 0.48,93.91 ± 0.43,94.02 ± 0.44
