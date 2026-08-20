@@ -1,7 +1,0 @@
-component,procedure,target_used_for_training_or_selection
-LODO fold construction,"Target corpus train, validation, and test splits are merged only as target_test.",No
-Handcrafted feature scaling,StandardScaler is fitted only on LODO source_train handcrafted features and then applied to source_validation and target_test.,No
-emotion2vec feature scaling,StandardScaler is fitted only on LODO source_train emotion2vec embeddings and then applied to source_validation and target_test.,No
-Class weighting,Class weights are computed only from source_train labels.,No
-Early stopping,Best epoch is selected using source_validation Macro-F1 only.,No
-Final target evaluation,Target labels are used only for final metric computation after model selection.,Evaluation only
