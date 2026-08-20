@@ -93,12 +93,4 @@ Figures:
 - `figures/lodo_macro_f1_all_models_plus_base.png`
 - `figures/lodo_macro_f1_all_models_plus_base.pdf`
 - `figures/figure3_perclass_lodo_f1_heatmap_plus_base.png`
-- `figures/figure3_perclass_lodo_f1_heatmap_plus_base.pdf`
 
-## Notes
-
-- `processed_intra_sequence_features_plus_base` is the correct sequence feature folder.
-- `processed_intra_sequence_features_base` is an old or unused folder name and should not be used.
-- `results_lodo_sequence_cross_attention_plus_base` is the correct output folder for the LODO Sequence-level Cross-Attention experiment.
-- The held-out target corpus is used only for final testing in the zero-target LODO protocol.
-- Feature scaling, class weighting, early stopping, and model selection must be performed only with source-domain training/validation data.
