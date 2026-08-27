@@ -124,7 +124,6 @@ cross-corpus-ser-zero-target/
     └── figure3_perclass_lodo_f1_heatmap_plus_base.png
 ```
 
-> Note: The current repository folder is named `manifests/`. If this folder is renamed to `manifests/`, update the paths in the README and scripts accordingly.
 
 ---
 
