@@ -617,8 +617,8 @@ The repository includes split manifests and leakage-prevention checklists in `ma
 | `manifests/lodo_sequence_split_manifests.csv` | train/validation/target-test manifests for LODO sequence-level experiments |
 | `manifests/lodo_leakage_prevention_checklist.csv` | leakage-prevention checklist for LODO utterance-level experiments |
 | `manifests/lodo_sequence_leakage_prevention_checklist.csv` | leakage-prevention checklist for LODO sequence-level experiments |
-| `manifests/generated_feature_file_manifests_sha256.csv` | SHA256 manifests for generated utterance-level emotion2vec feature files |
-| `manifests/generated_sequence_feature_file_manifests_sha256.csv` | SHA256 manifests for generated sequence-level feature files |
+| `manifests/generated_feature_file_manifest_sha256.csv` | SHA256 manifests for generated utterance-level emotion2vec feature files |
+| `manifests/generated_sequence_feature_file_manifest_sha256.csv` | SHA256 manifests for generated sequence-level feature files |
 | `manifests/environment_manifest.json` | environment and checkpoint manifests for utterance-level emotion2vec extraction |
 | `manifests/sequence_environment_manifest.json` | environment and checkpoint manifests for sequence-level feature extraction |
 
