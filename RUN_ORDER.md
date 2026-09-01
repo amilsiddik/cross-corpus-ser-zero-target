@@ -131,6 +131,9 @@ The final GitHub copies are stored in `results/`:
 * `results/perclass_lodo_summary_mean_std_plus_base.csv`
 * `results/duration_crop_padding_stats_by_dataset.csv`
 
+### Model complexity information
+* `results/model_trainable_parameters.csv`
+
 ### Seed-level result files
 
 The final GitHub copies are stored in `results/`:
