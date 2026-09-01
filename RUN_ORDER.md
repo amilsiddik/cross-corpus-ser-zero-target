@@ -1,6 +1,6 @@
 # Experiment B Run Order: plus_base Zero-Target Cross-Corpus Experiments
 
-This document describes the execution order used for the `plus_base` zero-target cross-corpus speech emotion recognition experiments, including the supplementary speaker-level cross-validation analysis added during revision.
+This document describes the execution order used for the `plus_base` zero-target cross-corpus speech emotion recognition experiments, including the supplementary speaker-level cross-validation and corpus-identity domain-probing analyses added during revision.
 
 The main working folder in Google Colab was:
 
@@ -34,10 +34,13 @@ The notebooks should be executed in the following order:
 11. `11_train_lodo_sequence_cross_attention.ipynb`
 12. `12_directional_transfer_matrix_emotion2vec.ipynb`
 13. `13_speaker_level_cv_ravdess_resd_FIXED.ipynb`
-14. `plot.ipynb`
-15. `Check_all.ipynb`
+14. `14_domain_probing_analysis_FIXED.ipynb`
+15. `plot.ipynb`
+16. `Check_all.ipynb`
 
 `13_speaker_level_cv_ravdess_resd_FIXED.ipynb` is a supplementary revision analysis. It performs 5-fold speaker-level GroupKFold cross-validation for RAVDESS and RESD using the four utterance-level models: Handcrafted SVM-RBF, Handcrafted MLP, emotion2vec MLP, and Concat Fusion MLP. Sequence-level Cross-Attention is not included in this supplementary CV analysis.
+
+`14_domain_probing_analysis_FIXED.ipynb` is a supplementary revision analysis that evaluates how strongly corpus identity is linearly decodable from the utterance-level handcrafted and emotion2vec representations. It uses 5-fold speaker-disjoint cross-validation with a deterministic linear logistic-regression probe. This analysis is diagnostic rather than causal: it does not establish that corpus-identifying information caused the fusion-performance difference or that cross-attention suppressed such information.
 
 Note: `08_train_cross_attention_fusion_intra.ipynb` was also fixed, but this model is not a primary reported model because the revised manuscript reports the Sequence-level Cross-Attention pipeline generated through `08b_extract_sequence_features_intra.ipynb`, `09_train_sequence_cross_attention_intra.ipynb`, and `11_train_lodo_sequence_cross_attention.ipynb`.
 
@@ -62,11 +65,18 @@ The following folders were used during execution in Google Colab.
 - `results_lodo_sequence_cross_attention_plus_base`
 - `results_directional_transfer_emotion2vec_plus_base`
 - `results_speaker_level_cv`
+- `results_domain_probing`
 
 The supplementary speaker-level CV notebook writes its working outputs to:
 
 ```text
 /content/drive/MyDrive/New Jurnal Cross/results_speaker_level_cv/
+```
+
+The supplementary domain-probing notebook writes its working outputs to:
+
+```text
+/content/drive/MyDrive/New Jurnal Cross/results_domain_probing/
 ```
 
 ## GitHub Repository Structure
@@ -94,6 +104,7 @@ cross-corpus-ser-zero-target/
 ├── 11_train_lodo_sequence_cross_attention.ipynb
 ├── 12_directional_transfer_matrix_emotion2vec.ipynb
 ├── 13_speaker_level_cv_ravdess_resd_FIXED.ipynb
+├── 14_domain_probing_analysis_FIXED.ipynb
 ├── Check_all.ipynb
 ├── plot.ipynb
 ├── manifests/
@@ -196,6 +207,35 @@ For emotion2vec MLP, the supplementary speaker-level CV produced:
 
 Here, the standard deviation reflects variability across the five outer speaker folds. The results indicate greater sensitivity to speaker partition for RESD than for RAVDESS under the present evaluation setting.
 
+### Supplementary corpus-identity domain probing
+
+The supplementary domain-probing analysis is implemented in:
+
+```text
+14_domain_probing_analysis_FIXED.ipynb
+```
+
+The working outputs are generated in `results_domain_probing/`, and the final GitHub copies should be stored in `results/`:
+
+- `results/domain_probe_all_results_FIXED.csv`
+- `results/domain_probe_summary_FIXED.csv`
+- `results/domain_probe_by_emotion_summary_FIXED.csv`
+
+The analysis compares linear corpus-identity decodability from the utterance-level handcrafted and emotion2vec representations using 5-fold speaker-disjoint cross-validation.
+
+For the main probe:
+
+| Representation | Balanced Accuracy (%) | Macro-F1 (%) |
+|---|---:|---:|
+| Handcrafted | 99.29 ± 0.33 | 99.22 ± 0.29 |
+| emotion2vec | 77.64 ± 3.99 | 75.83 ± 3.79 |
+
+The standard deviations reflect variability across the five held-out speaker folds. The logistic-regression probe is deterministic, so no artificial random-seed repetition is used for this supplementary analysis.
+
+An emotion-conditioned sensitivity analysis was also performed separately within each of the six emotion classes. The handcrafted representation remained more predictive of corpus identity than emotion2vec for angry, disgust, fear, happy, neutral, and sad.
+
+These results should be interpreted as evidence that corpus identity is more **linearly decodable** from the handcrafted representation under the present datasets. They do not establish that corpus-identifying information caused the lower cross-corpus performance of the Concat Fusion MLP, nor do they demonstrate that cross-attention suppressed such information.
+
 ### Figures
 
 The final GitHub copies are stored in `figures/`:
@@ -206,7 +246,7 @@ The final GitHub copies are stored in `figures/`:
 
 ## Notes on Statistical Uncertainty
 
-Two different sources of variability are reported and should not be conflated.
+The repository reports analysis-specific variability summaries that should not be conflated.
 
 ### Main intra-corpus, LODO, and directional-transfer experiments
 
@@ -231,6 +271,19 @@ For the supplementary 5-fold GroupKFold analysis:
 
 Therefore, the reported supplementary CV standard deviation reflects **speaker-partition variability across the five outer folds**, not seed variability.
 
+### Supplementary domain probing
+
+For the supplementary 5-fold speaker-disjoint domain-probing analysis:
+
+1. the outer folds are speaker-disjoint;
+2. probe-specific feature scaling is fitted only on the outer-training portion;
+3. the linear logistic-regression probe is deterministic and is evaluated once per outer fold; and
+4. the final mean ± standard deviation is calculated across the five held-out speaker folds.
+
+Therefore, the reported domain-probing standard deviation also reflects **speaker-partition variability across five held-out speaker folds**, not random-seed variability.
+
+The domain-probing result is a representation-level diagnostic of linear corpus decodability and should not be interpreted as a causal test of the fusion mechanism.
+
 ## Notes on Raw Data, Feature Caches, and Checkpoints
 
 The repository does not include:
@@ -242,7 +295,7 @@ The repository does not include:
 - credentials,
 - temporary runtime files.
 
-Users should obtain the original datasets from their respective sources and regenerate the features and results by following the notebook execution order above.
+Users should obtain the original datasets from their respective sources and regenerate the features and results by following the notebook execution order above. The supplementary speaker-level CV and domain-probing notebooks operate on the utterance-level feature representations generated earlier in the pipeline.
 
 ## Notes on Terminology
 
