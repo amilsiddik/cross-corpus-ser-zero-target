@@ -7,7 +7,7 @@ The main working folder in Google Colab was:
 ```python
 from pathlib import Path
 BASE_PROJECT = Path("/content/drive/MyDrive/New Jurnal Cross")
-````
+```
 
 The emotion2vec checkpoint used in the final experiments was:
 
