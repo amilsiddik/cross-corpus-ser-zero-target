@@ -613,8 +613,8 @@ The repository includes split manifests and leakage-prevention checklists in `ma
 
 | File | Purpose |
 |---|---|
-| `manifests/lodo_split_manifests.csv` | train/validation/target-test manifests for LODO utterance-level experiments |
-| `manifests/lodo_sequence_split_manifests.csv` | train/validation/target-test manifests for LODO sequence-level experiments |
+| `manifests/lodo_split_manifest.csv` | train/validation/target-test manifests for LODO utterance-level experiments |
+| `manifests/lodo_sequence_split_manifest.csv` | train/validation/target-test manifests for LODO sequence-level experiments |
 | `manifests/lodo_leakage_prevention_checklist.csv` | leakage-prevention checklist for LODO utterance-level experiments |
 | `manifests/lodo_sequence_leakage_prevention_checklist.csv` | leakage-prevention checklist for LODO sequence-level experiments |
 | `manifests/generated_feature_file_manifest_sha256.csv` | SHA256 manifests for generated utterance-level emotion2vec feature files |
@@ -721,7 +721,7 @@ This repository supports verification of the experimental pipeline and reported 
 - Precomputed feature caches are not redistributed.
 - Model checkpoints are not redistributed.
 - Full reproduction requires users to obtain the datasets from their original sources.
-- Results depend on the public `iic/emotion2vec_plus_base` checkpoint and the software environment recorded in the manifests files.
+- Results depend on the public `iic/emotion2vec_plus_base` checkpoint and the software environments recorded in the manifest files.
 - The reported standard deviations reflect random-seed variability under fixed splits, not uncertainty over alternative corpora, speakers, or utterances.
 
 ---
