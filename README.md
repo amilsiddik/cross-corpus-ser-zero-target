@@ -100,19 +100,23 @@ cross-corpus-ser-zero-target/
 ├── Check_all.ipynb
 ├── plot.ipynb
 ├── manifests/
-│   ├── environment_manifests.json
-│   ├── sequence_environment_manifests.json
-│   ├── generated_feature_file_manifests_sha256.csv
-│   ├── generated_sequence_feature_file_manifests_sha256.csv
-│   ├── lodo_split_manifests.csv
-│   ├── lodo_sequence_split_manifests.csv
+│   ├── environment_manifest.json
+│   ├── generated_feature_file_manifest_sha256.csv
+│   ├── generated_sequence_feature_file_manifest_sha256.csv
 │   ├── lodo_leakage_prevention_checklist.csv
-│   └── lodo_sequence_leakage_prevention_checklist.csv
+│   ├── lodo_partition_overlap_check.csv
+│   ├── lodo_sequence_leakage_prevention_checklist.csv
+│   ├── lodo_sequence_split_manifest.csv
+│   ├── lodo_sequence_split_summary.csv
+│   ├── lodo_split_manifest.csv
+│   ├── lodo_split_summary.csv
+│   └── sequence_environment_manifest.json
 ├── results/
 │   ├── compare_lodo_all_models_paper_table.csv
 │   ├── directional_transfer_all_seed_results.csv
 │   ├── directional_transfer_matrix_macro_f1.csv
 │   ├── directional_transfer_paper_table.csv
+│   ├── directional_transfer_summary_mean_std.csv
 │   ├── duration_crop_padding_stats_by_dataset.csv
 │   ├── lodo_all_seed_results_with_handcrafted.csv
 │   ├── lodo_paper_table_test.csv
