@@ -121,6 +121,7 @@ cross-corpus-ser-zero-target/
 │   ├── lodo_all_seed_results_with_handcrafted.csv
 │   ├── lodo_paper_table_test.csv
 │   ├── lodo_sequence_xattn_all_seed_results.csv
+│   ├── model_trainable_parameters.csv
 │   └── perclass_lodo_summary_mean_std_plus_base.csv
 └── figures/
     ├── lodo_macro_f1_all_models_plus_base.png
@@ -550,6 +551,7 @@ The main CSV result files are stored in `results/`.
 | `results/directional_transfer_matrix_macro_f1.csv` | directional Macro-F1 matrix |
 | `results/perclass_lodo_summary_mean_std_plus_base.csv` | per-class LODO F1 mean ± standard deviation |
 | `results/duration_crop_padding_stats_by_dataset.csv` | duration, crop, and padding statistics by dataset |
+| `results/model_trainable_parameters.csv`: trainable-parameter counts for the implemented neural models. |
 
 ---
 
