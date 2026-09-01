@@ -1,0 +1,6 @@
+Model,Trainable parameters,Notes
+Handcrafted SVM-RBF,Not applicable,Classical SVM-RBF baseline; no neural trainable parameters
+Handcrafted MLP,174982,548->256->128->6 with BatchNorm1d and dropout
+emotion2vec MLP,231302,768->256->128->6 with LayerNorm and dropout
+Concat Fusion MLP,841094,1316->512->256->128->6 with LayerNorm and dropout
+Sequence-level Cross-Attention,913032,T×768 emotion2vec stream and T×43 handcrafted stream; bidirectional cross-attention with d=128 and 4 heads
