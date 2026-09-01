@@ -177,5 +177,3 @@ Users should obtain the original datasets from their respective sources and rege
 
 In the revised manuscript, EmoDB 2.0 and RAVDESS are described as acted utterance corpora, while RESD is described as an improvised acted dialogue corpus or actor-voiced emotional dialogue corpus. If older internal metadata fields use the term `monologue`, they should be interpreted only as legacy internal labels for isolated acted utterance corpora, not as manuscript terminology.
 
-```
-```
