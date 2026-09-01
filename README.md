@@ -6,7 +6,7 @@ This repository contains the experimental notebook pipeline, split manifests, fo
 
 The study is an **exploratory zero-target cross-corpus speech emotion recognition (SER) analysis** using three acted emotional speech corpora: **EmoDB 2.0**, **RAVDESS**, and **RESD**. The study does **not** claim to causally disentangle language shift and dialogue-style shift. Instead, it evaluates how SER models behave under strict cross-corpus conditions where **language, corpus identity, recording conditions, label procedures, emotion distribution, and speaking style vary jointly**.
 
-The repository is intended to support reproducibility and reviewer verification of the zero-target LODO and directional transfer experiments. It does **not** redistribute raw speech datasets, precomputed feature caches, or model checkpoints.
+The repository is intended to support reproducibility and reviewer verification of the intra-corpus, zero-target LODO, directional transfer, and supplementary speaker-level cross-validation analyses. It does **not** redistribute raw speech datasets, precomputed feature caches, or model checkpoints.
 
 Repository URL:
 
@@ -97,6 +97,7 @@ cross-corpus-ser-zero-target/
 ├── 10_train_lodo_utterance_fusion.ipynb
 ├── 11_train_lodo_sequence_cross_attention.ipynb
 ├── 12_directional_transfer_matrix_emotion2vec.ipynb
+├── 13_speaker_level_cv_ravdess_resd_FIXED.ipynb
 ├── Check_all.ipynb
 ├── plot.ipynb
 ├── manifests/
@@ -122,7 +123,10 @@ cross-corpus-ser-zero-target/
 │   ├── lodo_paper_table_test.csv
 │   ├── lodo_sequence_xattn_all_seed_results.csv
 │   ├── model_trainable_parameters.csv
-│   └── perclass_lodo_summary_mean_std_plus_base.csv
+│   ├── perclass_lodo_summary_mean_std_plus_base.csv
+│   ├── speaker_level_cv_all_results_FIXED.csv
+│   ├── speaker_level_cv_fold_summary_FIXED.csv
+│   └── speaker_level_cv_summary_FIXED.csv
 └── figures/
     ├── lodo_macro_f1_all_models_plus_base.png
     ├── lodo_macro_f1_all_models_plus_base.pdf
@@ -159,6 +163,7 @@ New Jurnal Cross/
 ├── results_lodo_sequence_cross_attention_plus_base/
 ├── results_directional_transfer_emotion2vec_plus_base/
 ├── revision_final_outputs/
+├── speaker_level_cv_outputs/
 └── figures_plus_base/
 ```
 
@@ -182,8 +187,9 @@ Run the main notebooks in the following order.
 | 9 | `10_train_lodo_utterance_fusion.ipynb` | Train LODO Handcrafted SVM-RBF, Handcrafted MLP, emotion2vec MLP, and Concat Fusion MLP | LODO utterance-level results and leakage checklist |
 | 10 | `11_train_lodo_sequence_cross_attention.ipynb` | Train LODO Sequence-level Cross-Attention model | LODO sequence cross-attention results and leakage checklist |
 | 11 | `12_directional_transfer_matrix_emotion2vec.ipynb` | Run directional single-source to single-target transfer experiments | directional transfer matrix |
-| 12 | `plot.ipynb` | Generate paper figures and final summary tables | figures and final result tables |
-| 13 | `Check_all.ipynb` | Verify generated files, manifests, tables, and consistency checks | reproducibility checklist |
+| 12 | `13_speaker_level_cv_ravdess_resd_FIXED.ipynb` | Run supplementary 5-fold speaker-level GroupKFold sensitivity analysis for RAVDESS and RESD using the four utterance-level models | speaker-level CV all-results, fold-summary, and summary CSV files |
+| 13 | `plot.ipynb` | Generate paper figures and final summary tables | figures and final result tables |
+| 14 | `Check_all.ipynb` | Verify generated files, manifests, tables, and consistency checks | reproducibility checklist |
 
 ### Optional or legacy notebook
 
@@ -364,6 +370,28 @@ RESD → RAVDESS
 
 This analysis characterizes asymmetric corpus-pair transfer patterns. It does not causally isolate language, corpus, recording, labeling, emotion-distribution, or speaking-style effects.
 
+### 9.4 Supplementary speaker-level cross-validation
+
+To examine sensitivity to speaker partition beyond the fixed intra-corpus split, a supplementary **5-fold speaker-level GroupKFold** analysis was conducted for **RAVDESS** and **RESD** using the four utterance-level models:
+
+- Handcrafted SVM-RBF,
+- Handcrafted MLP,
+- emotion2vec MLP,
+- Concat Fusion MLP.
+
+For each outer fold, the held-out speakers are used exclusively for testing. For the neural models, a separate speaker-disjoint subset of the outer-training portion is used for validation and early stopping.
+
+For neural models, results from the three random seeds are first averaged within each outer fold. The final mean and standard deviation are then calculated across the five outer speaker folds. Therefore, the uncertainty reported for this supplementary analysis is **fold-level variability**, not the same quantity as the seed-level standard deviations reported in the main experiments.
+
+For emotion2vec MLP, the supplementary speaker-level CV produced:
+
+| Dataset | Macro-F1 (%) |
+|---|---:|
+| RAVDESS | 94.17 ± 3.74 |
+| RESD | 61.97 ± 8.34 |
+
+These results indicate greater sensitivity to speaker partition for RESD than for RAVDESS under the present evaluation setting. This analysis is supplementary and does not include the Sequence-level Cross-Attention model.
+
 ---
 
 ## 10. Models
@@ -511,7 +539,9 @@ random seeds: 42, 123, 2024
 
 For each seed, the checkpoint with the highest validation Macro-F1 is selected. Test scores from the three seeds are then summarized as mean and standard deviation.
 
-The reported standard deviations reflect variability across random seeds under fixed dataset splits. They do not represent sampling uncertainty over corpora, speakers, or utterances.
+For the **main intra-corpus, LODO, and directional-transfer experiments**, the reported standard deviations reflect variability across the three random seeds under fixed dataset splits. They do not represent sampling uncertainty over corpora, speakers, or utterances.
+
+The supplementary speaker-level GroupKFold analysis uses a different uncertainty unit: seed results are first averaged within each outer fold, and the reported standard deviation is calculated across the **five outer speaker folds**.
 
 ---
 
@@ -528,10 +558,16 @@ Weighted-F1
 
 Macro-F1 and UAR are emphasized because class distributions are not perfectly balanced across corpora.
 
-All neural results are reported as:
+For the main neural experiments, results are reported as:
 
 ```text
 mean ± standard deviation over three random seeds
+```
+
+For the supplementary 5-fold speaker-level GroupKFold analysis, seed results are first averaged within each outer fold and then summarized as:
+
+```text
+mean ± standard deviation across five outer speaker folds
 ```
 
 ---
@@ -539,6 +575,8 @@ mean ± standard deviation over three random seeds
 ## 14. Main result files
 
 The main CSV result files are stored in `results/`.
+
+**Uncertainty convention:** main experiment tables use SD across three random seeds under fixed splits. Supplementary speaker-level CV summaries use SD across five outer speaker folds after averaging seed results within each fold.
 
 | File | Description |
 |---|---|
@@ -551,7 +589,10 @@ The main CSV result files are stored in `results/`.
 | `results/directional_transfer_matrix_macro_f1.csv` | directional Macro-F1 matrix |
 | `results/perclass_lodo_summary_mean_std_plus_base.csv` | per-class LODO F1 mean ± standard deviation |
 | `results/duration_crop_padding_stats_by_dataset.csv` | duration, crop, and padding statistics by dataset |
-| `results/model_trainable_parameters.csv`: trainable-parameter counts for the implemented neural models. |
+| `results/model_trainable_parameters.csv` | trainable-parameter counts for the implemented neural models |
+| `results/speaker_level_cv_all_results_FIXED.csv` | all fold/seed results from the supplementary speaker-level CV |
+| `results/speaker_level_cv_fold_summary_FIXED.csv` | per-outer-fold summary after averaging neural-model seeds within each fold |
+| `results/speaker_level_cv_summary_FIXED.csv` | final mean ± SD summary across the five outer speaker folds |
 
 ---
 
@@ -577,6 +618,11 @@ The following findings should be interpreted descriptively under the present thr
 
 5. **RESD produced the lowest absolute LODO Macro-F1 among the three held-out corpora.**
    - This result should be interpreted as a corpus-pair effect under jointly varying language, corpus construction, recording conditions, label procedures, emotion distribution, and speaking style, rather than as causal evidence that dialogue style alone is more difficult than language shift.
+
+6. **Supplementary speaker-level CV showed greater partition sensitivity for RESD than for RAVDESS.**
+   - emotion2vec MLP on RAVDESS: **94.17 ± 3.74%**
+   - emotion2vec MLP on RESD: **61.97 ± 8.34%**
+   - Here, the SD is calculated across the five outer speaker folds after averaging seed results within each fold.
 
 ---
 
@@ -710,7 +756,7 @@ Thumbs.db
 Suggested manuscript statement:
 
 ```text
-The experimental code, split manifests, fold-level result files, and figure-generation scripts are available at https://github.com/amilsiddik/cross-corpus-ser-zero-target/. The raw speech datasets and precomputed feature caches are not redistributed and should be obtained or generated by users from the original datasets under their respective license and usage conditions. The repository provides instructions for reproducing the zero-target LODO and directional transfer experiments using the same preprocessing, feature extraction, and model-selection procedures.
+The experimental code, split manifests, fold-level result files, speaker-level cross-validation outputs, environment manifests, and figure-generation scripts are available at https://github.com/amilsiddik/cross-corpus-ser-zero-target/. The raw speech datasets and precomputed feature caches are not redistributed and should be obtained or generated by users from the original datasets under their respective license and usage conditions. The repository provides instructions for reproducing the intra-corpus, zero-target LODO, directional transfer, and supplementary speaker-level cross-validation analyses using the same preprocessing, feature extraction, and model-selection procedures.
 ```
 
 ---
@@ -724,7 +770,8 @@ This repository supports verification of the experimental pipeline and reported 
 - Model checkpoints are not redistributed.
 - Full reproduction requires users to obtain the datasets from their original sources.
 - Results depend on the public `iic/emotion2vec_plus_base` checkpoint and the software environments recorded in the manifest files.
-- The reported standard deviations reflect random-seed variability under fixed splits, not uncertainty over alternative corpora, speakers, or utterances.
+- In the main experiments, reported standard deviations reflect random-seed variability under fixed splits and should not be interpreted as sampling uncertainty over corpora, speakers, or utterances.
+- In the supplementary speaker-level GroupKFold analysis, neural-model seed results are averaged within each outer fold and the reported standard deviation reflects variability across the five outer speaker folds.
 
 ---
 
