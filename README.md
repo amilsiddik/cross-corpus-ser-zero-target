@@ -1,12 +1,14 @@
-# Zero-Target Cross-Corpus Speech Emotion Recognition Across Three Acted Corpora
+# Downstream Zero-Target Cross-Corpus Speech Emotion Recognition Across Three Acted Corpora
 
 This repository contains the experimental notebook pipeline, split manifests, fold-level results, and figure-generation artifacts for the manuscript:
 
-> **Zero-Target Cross-Corpus Speech Emotion Recognition Across Three Acted Corpora**
+> **Downstream Zero-Target Cross-Corpus Speech Emotion Recognition Across Three Acted Corpora**
 
 The study is an **exploratory zero-target cross-corpus speech emotion recognition (SER) analysis** using three acted emotional speech corpora: **EmoDB 2.0**, **RAVDESS**, and **RESD**. The study does **not** claim to causally disentangle language shift and dialogue-style shift. Instead, it evaluates how SER models behave under strict cross-corpus conditions where **language, corpus identity, recording conditions, label procedures, emotion distribution, and speaking style vary jointly**.
 
-The repository is intended to support reproducibility and reviewer verification of the intra-corpus, zero-target LODO, directional transfer, supplementary speaker-level cross-validation, and supplementary corpus-identity domain-probing analyses. It does **not** redistribute raw speech datasets, precomputed feature caches, or model checkpoints.
+The zero-target protocol is scoped to **downstream model development**. The upstream training history of the frozen pre-trained extractor could not be verified to exclude the evaluation corpora (see Section 8).
+
+The repository is intended to support reproducibility and reviewer verification of the intra-corpus, zero-target LODO, directional transfer, supplementary grouped cross-validation, and supplementary corpus-identity domain-probing analyses. It does **not** redistribute raw speech datasets, precomputed feature caches, or model checkpoints.
 
 Repository URL:
 
@@ -18,7 +20,7 @@ https://github.com/amilsiddik/cross-corpus-ser-zero-target/
 
 ## 1. Study scope
 
-This project evaluates cross-corpus SER under a strict **zero-target** setting.
+This project evaluates cross-corpus SER under a strict **downstream zero-target** setting.
 
 In this repository, **zero-target** means that the held-out target corpus is not used for:
 
@@ -34,9 +36,11 @@ In this repository, **zero-target** means that the held-out target corpus is not
 
 The held-out corpus is used only for final testing.
 
+This guarantee applies to every downstream stage carried out in this repository. It does **not** extend to the upstream training history of the public `iic/emotion2vec_plus_base` checkpoint, which is outside the control of this study and is discussed in Section 8.
+
 The analysis includes three experimental protocols:
 
-1. **Intra-corpus evaluation** using speaker-independent train/validation/test splits.
+1. **Intra-corpus evaluation** using speaker-independent splits for EmoDB 2.0 and RAVDESS and dialogue-disjoint splits for RESD.
 2. **Leave-One-Dataset-Out (LODO) cross-corpus evaluation** using two corpora as sources and one corpus as the held-out target.
 3. **Directional single-source to single-target transfer analysis** across all six ordered corpus pairs.
 
@@ -64,6 +68,12 @@ Labels not consistently available across all three corpora are excluded, includi
 - calm and surprised in RAVDESS,
 - enthusiasm in RESD.
 
+### Grouping identifiers
+
+For EmoDB 2.0 and RAVDESS, the corpora provide speaker identifiers, and all grouped partitions in this repository are **speaker-disjoint**.
+
+For RESD, the leading numeric identifier in each file name indexes a **recorded dialogue**, not an individual actor, and the corpus does not publish actor-level identifiers. All RESD partitions are therefore **dialogue-disjoint**, and actor-level independence cannot be guaranteed. File names, CSV column names, and notebook names that use the word `speaker` for RESD are legacy internal labels and should be read as dialogue identifiers.
+
 ### Dataset availability
 
 Raw datasets are **not included** in this repository. Users should obtain EmoDB 2.0, RAVDESS, and RESD from their original sources and follow the corresponding license and usage conditions.
@@ -84,6 +94,7 @@ The repository provides code, manifests, and result files only. It does not redi
 cross-corpus-ser-zero-target/
 ├── README.md
 ├── RUN_ORDER.md
+├── requirements.txt
 ├── Metadata.ipynb
 ├── 02_feature_extraction_handcrafted_intra.ipynb
 ├── 03_train_handcrafted_intra.ipynb
@@ -114,6 +125,7 @@ cross-corpus-ser-zero-target/
 │   ├── lodo_split_summary.csv
 │   └── sequence_environment_manifest.json
 ├── results/
+│   ├── compare_all_intra_test.csv
 │   ├── compare_lodo_all_models_paper_table.csv
 │   ├── directional_transfer_all_seed_results.csv
 │   ├── directional_transfer_matrix_macro_f1.csv
@@ -137,7 +149,6 @@ cross-corpus-ser-zero-target/
     └── figure3_perclass_lodo_f1_heatmap_plus_base.png
 ```
 
-
 ---
 
 ## 4. Google Drive project layout
@@ -158,8 +169,8 @@ New Jurnal Cross/
 ├── processed_intra_features_hc_noaug/
 ├── processed_intra_features_e2v_plus_base/
 ├── processed_intra_sequence_features_plus_base/
-├── results_intra_handcrafted_svm_plus_base/
-├── results_intra_handcrafted_mlp_plus_base/
+├── results_intra_handcrafted_svm/
+├── results_intra_handcrafted_mlp/
 ├── results_intra_emotion2vec_mlp_plus_base/
 ├── results_intra_concat_fusion_mlp_plus_base/
 ├── results_intra_sequence_cross_attention_plus_base/
@@ -167,10 +178,12 @@ New Jurnal Cross/
 ├── results_lodo_sequence_cross_attention_plus_base/
 ├── results_directional_transfer_emotion2vec_plus_base/
 ├── revision_final_outputs/
-├── speaker_level_cv_outputs/
+├── results_speaker_level_cv/
 ├── results_domain_probing/
 └── figures_plus_base/
 ```
+
+The two handcrafted result folders do not carry the `plus_base` suffix because the handcrafted baselines do not depend on the emotion2vec checkpoint; their outputs were regenerated in place during the final execution.
 
 ---
 
@@ -180,7 +193,7 @@ Run the main notebooks in the following order.
 
 | Step | Notebook | Purpose | Main output |
 |---:|---|---|---|
-| 0 | `Metadata.ipynb` | Build metadata and speaker-independent splits | metadata and split CSV files |
+| 0 | `Metadata.ipynb` | Build metadata and grouped train/validation/test splits | metadata and split CSV files |
 | 1 | `02_feature_extraction_handcrafted_intra.ipynb` | Extract utterance-level handcrafted acoustic-prosodic features | handcrafted feature tables |
 | 2 | `03_train_handcrafted_intra.ipynb` | Train Handcrafted SVM-RBF intra-corpus baseline | intra-corpus SVM results |
 | 3 | `04_train_handcrafted_mlp_intra.ipynb` | Train Handcrafted MLP intra-corpus baseline | intra-corpus MLP results |
@@ -188,18 +201,22 @@ Run the main notebooks in the following order.
 | 5 | `06_train_emotion2vec_intra.ipynb` | Train emotion2vec MLP intra-corpus model | intra-corpus emotion2vec MLP results |
 | 6 | `07_train_concat_fusion_intra.ipynb` | Train utterance-level Concat Fusion MLP intra-corpus model | intra-corpus concat fusion results |
 | 7 | `08b_extract_sequence_features_intra.ipynb` | Extract sequence-level emotion2vec and handcrafted features | sequence feature manifests |
-| 8 | `09_train_sequence_cross_attention_intra.ipynb` | Train Sequence-level Cross-Attention intra-corpus model | intra-corpus sequence cross-attention results |
+| 8 | `09_train_sequence_cross_attention_intra.ipynb` | Train Sequence-level Cross-Attention intra-corpus model and write the consolidated intra-corpus comparison table | intra-corpus sequence cross-attention results and `compare_all_intra_test.csv` |
 | 9 | `10_train_lodo_utterance_fusion.ipynb` | Train LODO Handcrafted SVM-RBF, Handcrafted MLP, emotion2vec MLP, and Concat Fusion MLP | LODO utterance-level results and leakage checklist |
 | 10 | `11_train_lodo_sequence_cross_attention.ipynb` | Train LODO Sequence-level Cross-Attention model | LODO sequence cross-attention results and leakage checklist |
 | 11 | `12_directional_transfer_matrix_emotion2vec.ipynb` | Run directional single-source to single-target transfer experiments | directional transfer matrix |
-| 12 | `13_speaker_level_cv_ravdess_resd_FIXED.ipynb` | Run supplementary 5-fold speaker-level GroupKFold sensitivity analysis for RAVDESS and RESD using the four utterance-level models | speaker-level CV all-results, fold-summary, and summary CSV files |
-| 13 | `14_domain_probing_analysis_FIXED.ipynb` | Run supplementary speaker-disjoint corpus-identity probing for handcrafted and emotion2vec utterance-level representations | domain-probe fold-level, summary, and emotion-conditioned summary CSV files |
+| 12 | `13_speaker_level_cv_ravdess_resd_FIXED.ipynb` | Run supplementary 5-fold grouped GroupKFold sensitivity analysis for RAVDESS (speaker-level) and RESD (dialogue-level) using the four utterance-level models | grouped CV all-results, fold-summary, and summary CSV files |
+| 13 | `14_domain_probing_analysis_FIXED.ipynb` | Run supplementary speaker- and dialogue-disjoint corpus-identity probing for handcrafted and emotion2vec utterance-level representations | domain-probe fold-level, summary, and emotion-conditioned summary CSV files |
 | 14 | `plot.ipynb` | Generate paper figures and final summary tables | figures and final result tables |
 | 15 | `Check_all.ipynb` | Verify generated files, manifests, tables, and consistency checks | reproducibility checklist |
+
+All results reported in the manuscript come from a single complete execution of this order. Split generation and feature extraction were repeated as part of that execution.
 
 ### Optional or legacy notebook
 
 `08_train_cross_attention_fusion_intra.ipynb` is retained for completeness as an earlier intra-corpus cross-attention experiment. The revised manuscript focuses on the implemented **Sequence-level Cross-Attention** pipeline generated through `08b_extract_sequence_features_intra.ipynb` and `09_train_sequence_cross_attention_intra.ipynb` for intra-corpus analysis, and `11_train_lodo_sequence_cross_attention.ipynb` for LODO analysis.
+
+Because this legacy model is still executed by the pipeline, the consolidated file `results/compare_all_intra_test.csv` contains one additional row labelled `Modality-level Cross-Attention`. That row is **not** reported in the manuscript and should be ignored when comparing the file against the manuscript tables.
 
 ---
 
@@ -264,6 +281,8 @@ The 548-dimensional vector contains:
 | Prosodic block: F0, jitter approximation, RMS, ZCR | 10 |
 | **Total** | **548** |
 
+**Note on effective dimensionality.** MFCCs are mean- and variance-normalized per utterance (CMVN) before the summary statistics are computed. The 80 direct MFCC summary dimensions are therefore effectively constant, and the informative dimensionality of the vector is lower than its nominal size. The delta and delta-delta statistics are unaffected. This should be taken into account when interpreting the performance of the handcrafted-only baselines.
+
 ### 7.2 Utterance-level emotion2vec features
 
 The emotion2vec extractor produces one **768-dimensional embedding** per utterance:
@@ -292,6 +311,8 @@ The two sequence streams are:
 | emotion2vec sequence | `T × 768` |
 | handcrafted sequence | `T × 43` |
 
+Both streams are resampled to the fixed length of 200 frames by **linear interpolation** along the time axis.
+
 The frame-level handcrafted vector contains:
 
 ```text
@@ -302,7 +323,7 @@ The 548-dimensional handcrafted vector and the `T × 43` handcrafted sequence ar
 
 ---
 
-## 8. emotion2vec checkpoint and environment
+## 8. emotion2vec checkpoint and upstream data provenance
 
 The final experiments use the following public FunASR/ModelScope checkpoint:
 
@@ -313,6 +334,8 @@ Checkpoint SHA256: 60710b5aae1dbe69bdac8920028fb05882d4314fd09031922b4b61ee9e7aa
 FunASR version: 1.4.1
 ModelScope version: 1.39.1
 ```
+
+The same checkpoint was used in the earlier pre-revision run of this pipeline; the pre-trained representation was not changed between experiment versions.
 
 Environment details and checkpoint verification are recorded in:
 
@@ -325,7 +348,31 @@ manifests/generated_sequence_feature_file_manifest_sha256.csv
 
 The public emotion2vec checkpoint is used as a **frozen feature extractor**. Its parameters are not updated during downstream classifier training.
 
-The downstream experiments are zero-target with respect to EmoDB 2.0, RAVDESS, and RESD. However, the original pre-training or fine-tuning composition of the public checkpoint is outside the control of this repository. In particular, the high held-out RAVDESS performance may partly reflect alignment between RAVDESS, as the only English target corpus in this study, and the language composition of the public emotion2vec pre-training/fine-tuning data. This remains an unresolved confounding factor.
+### Scope of the zero-target claim
+
+The published model card for the emotion2vec+ series states that the seed model was fine-tuned on academic speech emotion data from **EmoBox**, that the base model was fine-tuned on filtered large-scale pseudo-labeled data, and that each version is derived from the data of its predecessor. The EmoBox dataset table lists **EmoDB, RAVDESS, and RESD**, and the composition of the filtered pseudo-labeled data has not been publicly released.
+
+Consequently:
+
+| Question | Status |
+|---|---|
+| Are the three evaluation corpora present in EmoBox? | Verified from the EmoBox dataset table |
+| Was the seed model of the emotion2vec+ series fine-tuned on EmoBox? | Verified from the published model card |
+| Is `emotion2vec_plus_base` derived from that lineage? | Verified from the published model card |
+| Did the specific recordings enter the filtered pseudo-labeled data used for the base model? | Unknown; composition not released |
+| Were the checkpoint parameters updated in this study? | Verified: no, the extractor was frozen |
+| Was target-corpus data used in any downstream stage? | Verified: no |
+
+Exclusion of the evaluation corpora from upstream training therefore **cannot be verified**, and for EmoDB 2.0 this also applies to the recordings shared with the original EmoDB. The zero-target claim in this study is limited to downstream model development. The high held-out RAVDESS performance may reflect upstream familiarity as well as language alignment with the pre-trained representation. The handcrafted-only baselines involve no pre-training and are the only fully upstream-independent references in this comparison.
+
+References:
+
+```text
+emotion2vec+ base model card: https://modelscope.cn/models/iic/emotion2vec_plus_base
+EmoBox: Ma, Z., Chen, M., Zhang, H., Zheng, Z., Chen, W., Li, X., Ye, J., Chen, X., & Hain, T. (2024).
+        EmoBox: Multilingual Multi-corpus Speech Emotion Recognition Toolkit and Benchmark.
+        Interspeech 2024, 1580-1584.
+```
 
 ---
 
@@ -333,7 +380,7 @@ The downstream experiments are zero-target with respect to EmoDB 2.0, RAVDESS, a
 
 ### 9.1 Intra-corpus evaluation
 
-Each corpus is split into train, validation, and test sets using a speaker-independent protocol.
+Each corpus is split into train, validation, and test sets using grouped partitions: **speaker-independent** for EmoDB 2.0 and RAVDESS, and **dialogue-disjoint** for RESD, as explained in Section 2.
 
 Target split ratio:
 
@@ -341,7 +388,15 @@ Target split ratio:
 train / validation / test ≈ 70 / 15 / 15
 ```
 
-The final utterance ratio may vary because speakers are not allowed to appear in more than one split and each split is constrained to contain all six emotion classes.
+The final utterance ratio may vary because a group is not allowed to appear in more than one split and each split is constrained to contain all six emotion classes.
+
+The resulting partition sizes are:
+
+| Corpus | Train | Validation | Test |
+|---|---:|---:|---:|
+| EmoDB 2.0 | 498 | 71 | 149 |
+| RAVDESS | 704 | 176 | 176 |
+| RESD | 873 | 186 | 139 |
 
 ### 9.2 Zero-target LODO evaluation
 
@@ -376,42 +431,46 @@ RESD → RAVDESS
 
 This analysis characterizes asymmetric corpus-pair transfer patterns. It does not causally isolate language, corpus, recording, labeling, emotion-distribution, or speaking-style effects.
 
-### 9.4 Supplementary speaker-level cross-validation
+### 9.4 Supplementary grouped cross-validation
 
-To examine sensitivity to speaker partition beyond the fixed intra-corpus split, a supplementary **5-fold speaker-level GroupKFold** analysis was conducted for **RAVDESS** and **RESD** using the four utterance-level models:
+To examine sensitivity to data partition beyond the fixed intra-corpus split, a supplementary **5-fold GroupKFold** analysis was conducted for **RAVDESS** and **RESD** using the four utterance-level models:
 
 - Handcrafted SVM-RBF,
 - Handcrafted MLP,
 - emotion2vec MLP,
 - Concat Fusion MLP.
 
-For each outer fold, the held-out speakers are used exclusively for testing. For the neural models, a separate speaker-disjoint subset of the outer-training portion is used for validation and early stopping.
+The grouping unit differs by corpus: for RAVDESS the groups are **actor identifiers**, and for RESD the groups are **dialogue identifiers**, so the RESD folds are dialogue-disjoint and actor-level independence cannot be guaranteed.
 
-For neural models, results from the three random seeds are first averaged within each outer fold. The final mean and standard deviation are then calculated across the five outer speaker folds. Therefore, the uncertainty reported for this supplementary analysis is **fold-level variability**, not the same quantity as the seed-level standard deviations reported in the main experiments.
+For each outer fold, the held-out groups are used exclusively for testing. For the neural models, a separate group-disjoint subset of the outer-training portion is used for validation and early stopping.
 
-For emotion2vec MLP, the supplementary speaker-level CV produced:
+For neural models, results from the three random seeds are first averaged within each outer fold. The final mean and standard deviation are then calculated across the five outer folds. Therefore, the uncertainty reported for this supplementary analysis is **fold-level variability**, not the same quantity as the seed-level standard deviations reported in the main experiments.
+
+For emotion2vec MLP, the supplementary grouped CV produced:
 
 | Dataset | Macro-F1 (%) |
 |---|---:|
 | RAVDESS | 94.17 ± 3.74 |
 | RESD | 61.97 ± 8.34 |
 
-These results indicate greater sensitivity to speaker partition for RESD than for RAVDESS under the present evaluation setting. This analysis is supplementary and does not include the Sequence-level Cross-Attention model.
+These results indicate greater sensitivity to data partition for RESD than for RAVDESS under the present evaluation setting. This analysis is supplementary and does not include the Sequence-level Cross-Attention model.
+
+The corresponding result files keep their original names (`speaker_level_cv_*`), which are legacy file labels retained for continuity with the manuscript and the response letter.
 
 ### 9.5 Supplementary corpus-identity domain probing
 
 A supplementary corpus-identity probing analysis was conducted to examine how strongly corpus identity is linearly decodable from the utterance-level handcrafted and emotion2vec representations.
 
-The analysis uses **5-fold speaker-disjoint cross-validation** with a linear logistic-regression probe. Handcrafted features are first recovered to their pre-scaling feature space using the saved corpus-specific scaler, and probe-specific standardization is then fitted only on the outer-training portion of each fold. Handcrafted and emotion2vec samples are explicitly aligned by utterance ID.
+The analysis uses **5-fold speaker- and dialogue-disjoint cross-validation** with a linear logistic-regression probe. Handcrafted features are first recovered to their pre-scaling feature space using the saved corpus-specific scaler, and probe-specific standardization is then fitted only on the outer-training portion of each fold. Handcrafted and emotion2vec samples are explicitly aligned by utterance ID.
 
-The main speaker-disjoint probe produced:
+The main probe produced:
 
 | Representation | Balanced Accuracy (%) | Macro-F1 (%) |
 |---|---:|---:|
 | Handcrafted | 99.29 ± 0.33 | 99.22 ± 0.29 |
 | emotion2vec | 77.64 ± 3.99 | 75.83 ± 3.79 |
 
-The standard deviations reflect variability across the **five held-out speaker folds**.
+The standard deviations reflect variability across the **five held-out grouped folds**.
 
 An emotion-conditioned sensitivity analysis was also performed by repeating corpus prediction separately within each of the six emotion classes:
 
@@ -522,9 +581,11 @@ Pooling:
 
 ```text
 attentive pooling
-masked mean pooling
-masked max pooling
+mean pooling
+max pooling
 ```
+
+**Note on masking.** The implementation builds an all-ones validity mask, so all 200 sequence positions, including reflect-padded regions, are treated as valid during attention and pooling. The pooling operations are therefore not masked in effect.
 
 Fusion vector:
 
@@ -573,11 +634,11 @@ random seeds: 42, 123, 2024
 
 For each seed, the checkpoint with the highest validation Macro-F1 is selected. Test scores from the three seeds are then summarized as mean and standard deviation.
 
-For the **main intra-corpus, LODO, and directional-transfer experiments**, the reported standard deviations reflect variability across the three random seeds under fixed dataset splits. They do not represent sampling uncertainty over corpora, speakers, or utterances.
+For the **main intra-corpus, LODO, and directional-transfer experiments**, the reported standard deviations reflect variability across the three random seeds under fixed dataset splits. They do not represent sampling uncertainty over corpora, speakers, dialogues, or utterances.
 
-The supplementary speaker-level GroupKFold analysis uses a different uncertainty unit: seed results are first averaged within each outer fold, and the reported standard deviation is calculated across the **five outer speaker folds**.
+The supplementary grouped GroupKFold analysis uses a different uncertainty unit: seed results are first averaged within each outer fold, and the reported standard deviation is calculated across the **five outer folds**.
 
-The supplementary domain-probing analysis is deterministic at the probe level and is also summarized as **mean ± standard deviation across five held-out speaker folds**.
+The supplementary domain-probing analysis is deterministic at the probe level and is also summarized as **mean ± standard deviation across five held-out grouped folds**.
 
 ---
 
@@ -600,16 +661,16 @@ For the main neural experiments, results are reported as:
 mean ± standard deviation over three random seeds
 ```
 
-For the supplementary 5-fold speaker-level GroupKFold analysis, seed results are first averaged within each outer fold and then summarized as:
+For the supplementary 5-fold grouped GroupKFold analysis, seed results are first averaged within each outer fold and then summarized as:
 
 ```text
-mean ± standard deviation across five outer speaker folds
+mean ± standard deviation across five outer folds
 ```
 
-For the supplementary domain-probing analysis, the deterministic linear probe is evaluated once per speaker-disjoint outer fold and summarized using the same fold-level convention:
+For the supplementary domain-probing analysis, the deterministic linear probe is evaluated once per outer fold and summarized using the same fold-level convention:
 
 ```text
-mean ± standard deviation across five held-out speaker folds
+mean ± standard deviation across five held-out grouped folds
 ```
 
 ---
@@ -618,10 +679,11 @@ mean ± standard deviation across five held-out speaker folds
 
 The main CSV result files are stored in `results/`.
 
-**Uncertainty convention:** main experiment tables use SD across three random seeds under fixed splits. Supplementary speaker-level CV summaries use SD across five outer speaker folds after averaging seed results within each fold. Supplementary domain-probing summaries use SD across five held-out speaker folds.
+**Uncertainty convention:** main experiment tables use SD across three random seeds under fixed splits. Supplementary grouped CV summaries use SD across five outer folds after averaging seed results within each fold. Supplementary domain-probing summaries use SD across five held-out grouped folds.
 
 | File | Description |
 |---|---|
+| `results/compare_all_intra_test.csv` | consolidated intra-corpus test results for all evaluated models; source of the intra-corpus table reported in the manuscript. Contains one extra legacy row (`Modality-level Cross-Attention`) that is not reported in the manuscript |
 | `results/lodo_all_seed_results_with_handcrafted.csv` | seed-level LODO results for utterance-level models including handcrafted baselines |
 | `results/lodo_paper_table_test.csv` | LODO table for utterance-level models |
 | `results/lodo_sequence_xattn_all_seed_results.csv` | seed-level LODO results for Sequence-level Cross-Attention |
@@ -629,22 +691,22 @@ The main CSV result files are stored in `results/`.
 | `results/directional_transfer_all_seed_results.csv` | seed-level directional transfer results |
 | `results/directional_transfer_paper_table.csv` | directional transfer table used in the manuscript |
 | `results/directional_transfer_matrix_macro_f1.csv` | directional Macro-F1 matrix |
+| `results/directional_transfer_summary_mean_std.csv` | mean ± SD for the six directional transfer pairs |
 | `results/perclass_lodo_summary_mean_std_plus_base.csv` | per-class LODO F1 mean ± standard deviation |
 | `results/duration_crop_padding_stats_by_dataset.csv` | duration, crop, and padding statistics by dataset |
 | `results/model_trainable_parameters.csv` | trainable-parameter counts for the implemented neural models |
-| `results/compare_all_intra_test.csv` 
-| `results/speaker_level_cv_all_results_FIXED.csv` | all fold/seed results from the supplementary speaker-level CV |
+| `results/speaker_level_cv_all_results_FIXED.csv` | all fold/seed results from the supplementary grouped CV (speaker-level for RAVDESS, dialogue-level for RESD) |
 | `results/speaker_level_cv_fold_summary_FIXED.csv` | per-outer-fold summary after averaging neural-model seeds within each fold |
-| `results/speaker_level_cv_summary_FIXED.csv` | final mean ± SD summary across the five outer speaker folds |
-| `results/domain_probe_all_results_FIXED.csv` | fold-level speaker-disjoint corpus-identity probing results for handcrafted and emotion2vec representations |
-| `results/domain_probe_summary_FIXED.csv` | final mean ± SD summary across five held-out speaker folds for the main domain probe |
+| `results/speaker_level_cv_summary_FIXED.csv` | final mean ± SD summary across the five outer folds |
+| `results/domain_probe_all_results_FIXED.csv` | fold-level corpus-identity probing results for handcrafted and emotion2vec representations |
+| `results/domain_probe_summary_FIXED.csv` | final mean ± SD summary across five held-out grouped folds for the main domain probe |
 | `results/domain_probe_by_emotion_summary_FIXED.csv` | emotion-conditioned domain-probing summary for all six emotion classes |
 
 ---
 
 ## 15. Main experimental findings
 
-The following findings should be interpreted descriptively under the present three-corpus zero-target protocol.
+The following findings should be interpreted descriptively under the present three-corpus downstream zero-target protocol.
 
 1. **emotion2vec MLP achieved the highest average LODO Macro-F1 among the evaluated models.**
    - Average LODO Macro-F1: **79.12%**
@@ -665,10 +727,10 @@ The following findings should be interpreted descriptively under the present thr
 5. **RESD produced the lowest absolute LODO Macro-F1 among the three held-out corpora.**
    - This result should be interpreted as a corpus-pair effect under jointly varying language, corpus construction, recording conditions, label procedures, emotion distribution, and speaking style, rather than as causal evidence that dialogue style alone is more difficult than language shift.
 
-6. **Supplementary speaker-level CV showed greater partition sensitivity for RESD than for RAVDESS.**
+6. **Supplementary grouped CV showed greater partition sensitivity for RESD than for RAVDESS.**
    - emotion2vec MLP on RAVDESS: **94.17 ± 3.74%**
    - emotion2vec MLP on RESD: **61.97 ± 8.34%**
-   - Here, the SD is calculated across the five outer speaker folds after averaging seed results within each fold.
+   - Here, the SD is calculated across the five outer folds after averaging seed results within each fold.
 
 7. **Supplementary domain probing showed substantially greater linear corpus decodability from handcrafted features than from emotion2vec.**
    - Handcrafted Macro-F1: **99.22 ± 0.29%**
@@ -717,6 +779,7 @@ The repository includes split manifests and leakage-prevention checklists in `ma
 | `manifests/lodo_sequence_split_manifest.csv` | train/validation/target-test manifests for LODO sequence-level experiments |
 | `manifests/lodo_leakage_prevention_checklist.csv` | leakage-prevention checklist for LODO utterance-level experiments |
 | `manifests/lodo_sequence_leakage_prevention_checklist.csv` | leakage-prevention checklist for LODO sequence-level experiments |
+| `manifests/lodo_partition_overlap_check.csv` | file-level overlap check between source and target partitions |
 | `manifests/generated_feature_file_manifest_sha256.csv` | SHA256 manifests for generated utterance-level emotion2vec feature files |
 | `manifests/generated_sequence_feature_file_manifest_sha256.csv` | SHA256 manifests for generated sequence-level feature files |
 | `manifests/environment_manifest.json` | environment and checkpoint manifests for utterance-level emotion2vec extraction |
@@ -808,7 +871,7 @@ Thumbs.db
 Suggested manuscript statement:
 
 ```text
-The experimental code, split manifests, fold-level result files, speaker-level cross-validation outputs, supplementary domain-probing outputs, environment manifests, and figure-generation scripts are available at https://github.com/amilsiddik/cross-corpus-ser-zero-target/. The raw speech datasets and precomputed feature caches are not redistributed and should be obtained or generated by users from the original datasets under their respective license and usage conditions. The repository provides instructions for reproducing the intra-corpus, zero-target LODO, directional transfer, supplementary speaker-level cross-validation, and supplementary corpus-identity domain-probing analyses using the documented preprocessing, feature extraction, and evaluation procedures.
+The experimental code, split manifests, fold-level result files, supplementary grouped cross-validation outputs, supplementary domain-probing outputs, environment manifests, and figure-generation scripts are available at https://github.com/amilsiddik/cross-corpus-ser-zero-target/. The raw speech datasets and precomputed feature caches are not redistributed and should be obtained or generated by users from the original datasets under their respective license and usage conditions. The repository provides instructions for reproducing the intra-corpus, downstream zero-target LODO, directional transfer, supplementary grouped cross-validation, and supplementary corpus-identity domain-probing analyses using the documented preprocessing, feature extraction, and evaluation procedures.
 ```
 
 ---
@@ -822,8 +885,10 @@ This repository supports verification of the experimental pipeline and reported 
 - Model checkpoints are not redistributed.
 - Full reproduction requires users to obtain the datasets from their original sources.
 - Results depend on the public `iic/emotion2vec_plus_base` checkpoint and the software environments recorded in the manifest files.
-- In the main experiments, reported standard deviations reflect random-seed variability under fixed splits and should not be interpreted as sampling uncertainty over corpora, speakers, or utterances.
-- In the supplementary speaker-level GroupKFold analysis, neural-model seed results are averaged within each outer fold and the reported standard deviation reflects variability across the five outer speaker folds.
+- The zero-target guarantee applies to downstream model development only; the upstream training history of the public checkpoint could not be verified to exclude the evaluation corpora.
+- For RESD, partitions are dialogue-disjoint and actor-level independence cannot be guaranteed.
+- In the main experiments, reported standard deviations reflect random-seed variability under fixed splits and should not be interpreted as sampling uncertainty over corpora, speakers, dialogues, or utterances.
+- In the supplementary grouped GroupKFold analysis, neural-model seed results are averaged within each outer fold and the reported standard deviation reflects variability across the five outer folds.
 - The supplementary domain-probing analysis measures linear decodability of corpus identity. It does not establish that corpus-identifying information caused the fusion-performance difference or that cross-attention suppressed such information.
 
 ---
