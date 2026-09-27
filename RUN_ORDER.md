@@ -1,6 +1,6 @@
-# Experiment B Run Order: plus_base Zero-Target Cross-Corpus Experiments
+# Experiment B Run Order: plus_base Downstream Zero-Target Cross-Corpus Experiments
 
-This document describes the execution order used for the `plus_base` zero-target cross-corpus speech emotion recognition experiments, including the supplementary speaker-level cross-validation and corpus-identity domain-probing analyses added during revision.
+This document describes the execution order used for the `plus_base` downstream zero-target cross-corpus speech emotion recognition experiments, including the supplementary grouped cross-validation and corpus-identity domain-probing analyses added during revision.
 
 The main working folder in Google Colab was:
 
@@ -15,7 +15,11 @@ The emotion2vec checkpoint used in the final experiments was:
 CONFIG["model_name"] = "iic/emotion2vec_plus_base"
 ```
 
-The output folders use the suffix `plus_base` where applicable so that the final experiment does not overwrite previous experiment folders.
+The same checkpoint was used in the earlier pre-revision run; the pre-trained representation was not changed between experiment versions.
+
+The output folders use the suffix `plus_base` where applicable so that the final experiment does not overwrite previous experiment folders. The two handcrafted result folders do not use this suffix, because the handcrafted baselines do not depend on the emotion2vec checkpoint; their outputs were regenerated in place.
+
+All results reported in the manuscript come from a single complete execution of the order below. Split generation and feature extraction were repeated as part of that execution.
 
 ## Execution Order
 
@@ -38,11 +42,19 @@ The notebooks should be executed in the following order:
 15. `plot.ipynb`
 16. `Check_all.ipynb`
 
-`13_speaker_level_cv_ravdess_resd_FIXED.ipynb` is a supplementary revision analysis. It performs 5-fold speaker-level GroupKFold cross-validation for RAVDESS and RESD using the four utterance-level models: Handcrafted SVM-RBF, Handcrafted MLP, emotion2vec MLP, and Concat Fusion MLP. Sequence-level Cross-Attention is not included in this supplementary CV analysis.
+`09_train_sequence_cross_attention_intra.ipynb` also writes the consolidated intra-corpus comparison table used for the intra-corpus results reported in the manuscript.
 
-`14_domain_probing_analysis_FIXED.ipynb` is a supplementary revision analysis that evaluates how strongly corpus identity is linearly decodable from the utterance-level handcrafted and emotion2vec representations. It uses 5-fold speaker-disjoint cross-validation with a deterministic linear logistic-regression probe. This analysis is diagnostic rather than causal: it does not establish that corpus-identifying information caused the fusion-performance difference or that cross-attention suppressed such information.
+`13_speaker_level_cv_ravdess_resd_FIXED.ipynb` is a supplementary revision analysis. It performs 5-fold GroupKFold cross-validation for RAVDESS and RESD using the four utterance-level models: Handcrafted SVM-RBF, Handcrafted MLP, emotion2vec MLP, and Concat Fusion MLP. For RAVDESS the groups are actor identifiers; for RESD the groups are dialogue identifiers, because the corpus does not publish actor-level identifiers. Sequence-level Cross-Attention is not included in this supplementary CV analysis.
 
-Note: `08_train_cross_attention_fusion_intra.ipynb` was also fixed, but this model is not a primary reported model because the revised manuscript reports the Sequence-level Cross-Attention pipeline generated through `08b_extract_sequence_features_intra.ipynb`, `09_train_sequence_cross_attention_intra.ipynb`, and `11_train_lodo_sequence_cross_attention.ipynb`.
+`14_domain_probing_analysis_FIXED.ipynb` is a supplementary revision analysis that evaluates how strongly corpus identity is linearly decodable from the utterance-level handcrafted and emotion2vec representations. It uses 5-fold speaker- and dialogue-disjoint cross-validation with a deterministic linear logistic-regression probe. This analysis is diagnostic rather than causal: it does not establish that corpus-identifying information caused the fusion-performance difference or that cross-attention suppressed such information.
+
+Note: `08_train_cross_attention_fusion_intra.ipynb` was also fixed, but this model is not a primary reported model because the revised manuscript reports the Sequence-level Cross-Attention pipeline generated through `08b_extract_sequence_features_intra.ipynb`, `09_train_sequence_cross_attention_intra.ipynb`, and `11_train_lodo_sequence_cross_attention.ipynb`. Because the legacy model is still executed, the consolidated intra-corpus table contains one additional row labelled `Modality-level Cross-Attention` that is not reported in the manuscript.
+
+## Grouping Terminology
+
+For EmoDB 2.0 and RAVDESS, all grouped partitions in this pipeline are **speaker-disjoint**, using the speaker identifiers provided by the corpora.
+
+For RESD, the leading numeric identifier in each file name indexes a **recorded dialogue**, not an individual actor. All RESD partitions are therefore **dialogue-disjoint**, and actor-level independence cannot be guaranteed. Notebook names, column names, and result file names that contain the word `speaker` for RESD are legacy internal labels and should be read as dialogue identifiers.
 
 ## Working Input and Output Folders in Google Drive
 
@@ -50,14 +62,15 @@ The following folders were used during execution in Google Colab.
 
 ### Input/cache folders
 
+- `processed_intra_csv`
 - `processed_intra_features_hc_noaug`
 - `processed_intra_features_e2v_plus_base`
 - `processed_intra_sequence_features_plus_base`
 
 ### Main result folders
 
-- `results_intra_handcrafted_svm_plus_base`
-- `results_intra_handcrafted_mlp_plus_base`
+- `results_intra_handcrafted_svm`
+- `results_intra_handcrafted_mlp`
 - `results_intra_emotion2vec_mlp_plus_base`
 - `results_intra_concat_fusion_mlp_plus_base`
 - `results_intra_sequence_cross_attention_plus_base`
@@ -67,7 +80,7 @@ The following folders were used during execution in Google Colab.
 - `results_speaker_level_cv`
 - `results_domain_probing`
 
-The supplementary speaker-level CV notebook writes its working outputs to:
+The supplementary grouped CV notebook writes its working outputs to:
 
 ```text
 /content/drive/MyDrive/New Jurnal Cross/results_speaker_level_cv/
@@ -144,6 +157,20 @@ The final GitHub copies are stored in `manifests/`:
 
 These files document the LODO fold construction, source/target separation, and leakage-prevention checks.
 
+### Intra-corpus result table
+
+The consolidated intra-corpus test results are generated in:
+
+```text
+results_intra_sequence_cross_attention_plus_base/compare_all_intra_test.csv
+```
+
+The final GitHub copy is stored in `results/`:
+
+- `results/compare_all_intra_test.csv`
+
+This file is the source of the intra-corpus results reported in the manuscript. It contains one additional legacy row (`Modality-level Cross-Attention`) that is not reported in the manuscript.
+
 ### Main paper result tables
 
 The final GitHub copies are stored in `results/`:
@@ -180,9 +207,9 @@ The final GitHub copies are stored in `results/`:
 
 The file `directional_transfer_summary_mean_std.csv` contains the mean ± standard deviation values for the six single-source to single-target directional transfer pairs.
 
-### Supplementary speaker-level cross-validation
+### Supplementary grouped cross-validation
 
-The supplementary 5-fold speaker-level GroupKFold analysis is implemented in:
+The supplementary 5-fold GroupKFold analysis is implemented in:
 
 ```text
 13_speaker_level_cv_ravdess_resd_FIXED.ipynb
@@ -194,18 +221,20 @@ The working outputs are generated in `results_speaker_level_cv/`, and the final 
 - `results/speaker_level_cv_fold_summary_FIXED.csv`
 - `results/speaker_level_cv_summary_FIXED.csv`
 
-The analysis uses outer speaker folds for final testing. For the neural models, a separate speaker-disjoint split within the outer-training portion is used for validation and early stopping.
+The file names are legacy labels retained for continuity with the manuscript and the response letter; the grouping unit is actors for RAVDESS and dialogues for RESD.
 
-For the main experiments, reported standard deviations are calculated across three random seeds under fixed dataset splits. In contrast, for the supplementary speaker-level CV, neural-model results are first averaged across seeds within each outer fold and then summarized across the five outer speaker folds.
+The analysis uses outer grouped folds for final testing. For the neural models, a separate group-disjoint split within the outer-training portion is used for validation and early stopping.
 
-For emotion2vec MLP, the supplementary speaker-level CV produced:
+For the main experiments, reported standard deviations are calculated across three random seeds under fixed dataset splits. In contrast, for the supplementary grouped CV, neural-model results are first averaged across seeds within each outer fold and then summarized across the five outer folds.
+
+For emotion2vec MLP, the supplementary grouped CV produced:
 
 | Dataset | Macro-F1 (%) |
 |---|---:|
 | RAVDESS | 94.17 ± 3.74 |
 | RESD | 61.97 ± 8.34 |
 
-Here, the standard deviation reflects variability across the five outer speaker folds. The results indicate greater sensitivity to speaker partition for RESD than for RAVDESS under the present evaluation setting.
+Here, the standard deviation reflects variability across the five outer folds. The results indicate greater sensitivity to data partition for RESD than for RAVDESS under the present evaluation setting.
 
 ### Supplementary corpus-identity domain probing
 
@@ -221,7 +250,7 @@ The working outputs are generated in `results_domain_probing/`, and the final Gi
 - `results/domain_probe_summary_FIXED.csv`
 - `results/domain_probe_by_emotion_summary_FIXED.csv`
 
-The analysis compares linear corpus-identity decodability from the utterance-level handcrafted and emotion2vec representations using 5-fold speaker-disjoint cross-validation.
+The analysis compares linear corpus-identity decodability from the utterance-level handcrafted and emotion2vec representations using 5-fold speaker- and dialogue-disjoint cross-validation.
 
 For the main probe:
 
@@ -230,7 +259,7 @@ For the main probe:
 | Handcrafted | 99.29 ± 0.33 | 99.22 ± 0.29 |
 | emotion2vec | 77.64 ± 3.99 | 75.83 ± 3.79 |
 
-The standard deviations reflect variability across the five held-out speaker folds. The logistic-regression probe is deterministic, so no artificial random-seed repetition is used for this supplementary analysis.
+The standard deviations reflect variability across the five held-out grouped folds. The logistic-regression probe is deterministic, so no artificial random-seed repetition is used for this supplementary analysis.
 
 An emotion-conditioned sensitivity analysis was also performed separately within each of the six emotion classes. The handcrafted representation remained more predictive of corpus identity than emotion2vec for angry, disgust, fear, happy, neutral, and sad.
 
@@ -258,29 +287,29 @@ Each neural configuration is trained with three random seeds:
 
 For each seed, the checkpoint with the highest validation Macro-F1 is selected. Test scores are then summarized as mean ± standard deviation across the three seeds.
 
-Therefore, these standard deviations reflect **random-seed variability under a fixed dataset split** and do not represent sampling uncertainty over speakers, corpora, or utterances.
+Therefore, these standard deviations reflect **random-seed variability under a fixed dataset split** and do not represent sampling uncertainty over speakers, dialogues, corpora, or utterances.
 
-### Supplementary speaker-level CV
+### Supplementary grouped CV
 
 For the supplementary 5-fold GroupKFold analysis:
 
-1. the outer GroupKFold defines the held-out test speakers;
-2. a separate speaker-disjoint inner split is used for early stopping of neural models;
+1. the outer GroupKFold defines the held-out test groups, which are actors for RAVDESS and dialogues for RESD;
+2. a separate group-disjoint inner split is used for early stopping of neural models;
 3. random-seed results are averaged within each outer fold; and
 4. the final mean ± standard deviation is calculated across the five outer-fold means.
 
-Therefore, the reported supplementary CV standard deviation reflects **speaker-partition variability across the five outer folds**, not seed variability.
+Therefore, the reported supplementary CV standard deviation reflects **partition variability across the five outer folds**, not seed variability.
 
 ### Supplementary domain probing
 
-For the supplementary 5-fold speaker-disjoint domain-probing analysis:
+For the supplementary 5-fold domain-probing analysis:
 
-1. the outer folds are speaker-disjoint;
+1. the outer folds are speaker-disjoint for EmoDB 2.0 and RAVDESS and dialogue-disjoint for RESD;
 2. probe-specific feature scaling is fitted only on the outer-training portion;
 3. the linear logistic-regression probe is deterministic and is evaluated once per outer fold; and
-4. the final mean ± standard deviation is calculated across the five held-out speaker folds.
+4. the final mean ± standard deviation is calculated across the five held-out folds.
 
-Therefore, the reported domain-probing standard deviation also reflects **speaker-partition variability across five held-out speaker folds**, not random-seed variability.
+Therefore, the reported domain-probing standard deviation also reflects **partition variability across five held-out folds**, not random-seed variability.
 
 The domain-probing result is a representation-level diagnostic of linear corpus decodability and should not be interpreted as a causal test of the fusion mechanism.
 
@@ -295,8 +324,10 @@ The repository does not include:
 - credentials,
 - temporary runtime files.
 
-Users should obtain the original datasets from their respective sources and regenerate the features and results by following the notebook execution order above. The supplementary speaker-level CV and domain-probing notebooks operate on the utterance-level feature representations generated earlier in the pipeline.
+Users should obtain the original datasets from their respective sources and regenerate the features and results by following the notebook execution order above. The supplementary grouped CV and domain-probing notebooks operate on the utterance-level feature representations generated earlier in the pipeline.
 
 ## Notes on Terminology
 
 In the revised manuscript, EmoDB 2.0 and RAVDESS are described as acted utterance corpora, while RESD is described as an **improvised acted dialogue** corpus or an **actor-voiced emotional dialogue** corpus. If older internal metadata fields use the term `monologue`, they should be interpreted only as legacy internal labels for isolated acted utterance corpora, not as manuscript terminology.
+
+The same applies to the word `speaker` in RESD-related file names, column names, and notebook names: these are legacy labels, and the corresponding grouping unit is the dialogue.
