@@ -1,4 +1,4 @@
-# Experiment B Run Order: plus_base Downstream Zero-Target Cross-Corpus Experiments
+# Run Order: plus_base Downstream Zero-Target Cross-Corpus Experiments
 
 This document describes the execution order used for the `plus_base` downstream zero-target cross-corpus speech emotion recognition experiments, including the supplementary grouped cross-validation and corpus-identity domain-probing analyses added during revision.
 
