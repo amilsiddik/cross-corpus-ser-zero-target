@@ -632,6 +632,7 @@ The main CSV result files are stored in `results/`.
 | `results/perclass_lodo_summary_mean_std_plus_base.csv` | per-class LODO F1 mean ± standard deviation |
 | `results/duration_crop_padding_stats_by_dataset.csv` | duration, crop, and padding statistics by dataset |
 | `results/model_trainable_parameters.csv` | trainable-parameter counts for the implemented neural models |
+| `results/compare_all_intra_test.csv` 
 | `results/speaker_level_cv_all_results_FIXED.csv` | all fold/seed results from the supplementary speaker-level CV |
 | `results/speaker_level_cv_fold_summary_FIXED.csv` | per-outer-fold summary after averaging neural-model seeds within each fold |
 | `results/speaker_level_cv_summary_FIXED.csv` | final mean ± SD summary across the five outer speaker folds |
